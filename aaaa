@@ -1,0 +1,38 @@
+-- Auto Egg Toggle
+local autoEggEnabled = false
+local autoEggConnection
+
+local function startAutoEgg()
+	autoEggConnection = task.spawn(function()
+		local character = player.Character or player.CharacterAdded:Wait()
+		while autoEggEnabled do
+			character = player.Character or player.CharacterAdded:Wait()
+
+			-- Buscar huevo
+			local egg = character:FindFirstChild("Huevo de Proteína") or character:FindFirstChild("Protein Egg")
+			if egg then
+				local args = {
+					[1] = "proteinEgg",
+					[2] = egg
+				}
+				pcall(function()
+					player:WaitForChild("muscleEvent"):FireServer(unpack(args))
+				end)
+			end
+
+			task.wait(0.1)
+		end
+	end)
+end
+
+-- Botón Toggle
+giftTab:CreateToggle("Auto Egg", function(state)
+	autoEggEnabled = state
+
+	if autoEggEnabled then
+		startAutoEgg()
+		library:Notify("Auto Egg activado ✅", 2)
+	else
+		library:Notify("Auto Egg desactivado ❌", 2)
+	end
+end)
