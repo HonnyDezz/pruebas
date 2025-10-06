@@ -1141,47 +1141,38 @@ end
 
 				do -- Tab Elements
 
-					function tab_data:AddLabel(label_text) -- [Label]
-						label_text = tostring(label_text or "New Label")
+					ffunction tab_data:AddButton(button_text, callback) -- [Button con efecto rainbow]
+    button_text = tostring(button_text or "New Button")
+    callback = typeof(callback) == "function" and callback or function()end
 
-						local label = Prefabs:FindFirstChild("Label"):Clone()
+    local button = Prefabs:FindFirstChild("Button"):Clone()
 
-						label.Parent = new_tab
-						label.Text = label_text
-						label.Size = UDim2.new(0, gNameLen(label), 0, 20)
-						label.ZIndex = label.ZIndex + (windows * 10)
+    button.Parent = new_tab
+    button.Text = button_text
+    button.Size = UDim2.new(0, gNameLen(button), 0, 20)
+    button.ZIndex = button.ZIndex + (windows * 10)
+    button:GetChildren()[1].ZIndex = button:GetChildren()[1].ZIndex + (windows * 10)
 
-						return label
-					end
+    -- 🌈 Efecto rainbow medio
+    spawn(function()
+        while true do
+            local hue = tick() % 3 / 3 -- velocidad media
+            local rainbow = Color3.fromHSV(hue, 1, 1)
+            if button and button:GetChildren()[1] then
+                button:GetChildren()[1].ImageColor3 = rainbow
+            end
+            RS.Heartbeat:Wait()
+        end
+    end)
 
-					function tab_data:AddButton(button_text, callback) -- [Button]
-						button_text = tostring(button_text or "New Button")
-						callback = typeof(callback) == "function" and callback or function()end
+    button.MouseButton1Click:Connect(function()
+        ripple(button, mouse.X, mouse.Y)
+        pcall(callback)
+    end)
 
-						local button = Prefabs:FindFirstChild("Button"):Clone()
+    return button
+end
 
-						button.Parent = new_tab
-						button.Text = button_text
-						button.Size = UDim2.new(0, gNameLen(button), 0, 20)
-						button.ZIndex = button.ZIndex + (windows * 10)
-						button:GetChildren()[1].ZIndex = button:GetChildren()[1].ZIndex + (windows * 10)
-
-						spawn(function()
-							while true do
-								if button and button:GetChildren()[1] then
-									button:GetChildren()[1].ImageColor3 = options.main_color
-								end
-								RS.Heartbeat:Wait()
-							end
-						end)
-
-						button.MouseButton1Click:Connect(function()
-							ripple(button, mouse.X, mouse.Y)
-							pcall(callback)
-						end)
-
-						return button
-					end
 
 					function tab_data:AddSwitch(switch_text, callback) -- [Switch]
     local switch_data = {}
