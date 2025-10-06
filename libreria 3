@@ -1155,53 +1155,31 @@ end
 					end
 
 					function tab_data:AddButton(button_text, callback) -- [Button Rainbow 🌈]
-	button_text = tostring(button_text or "New Button")
-	callback = typeof(callback) == "function" and callback or function()end
-
-	local button = Prefabs:FindFirstChild("Button"):Clone()
-	button.Parent = new_tab
-	button.Text = button_text
-	button.Size = UDim2.new(0, gNameLen(button), 0, 20)
-	button.ZIndex = button.ZIndex + (windows * 10)
-	button:GetChildren()[1].ZIndex = button:GetChildren()[1].ZIndex + (windows * 10)
-
-	-- 🌈 Efecto arcoíris dinámico
-	spawn(function()
-		while task.wait() do
-			if not button or not button:GetChildren()[1] then break end
-			local hue = tick() % 3 / 3 -- velocidad del ciclo (más bajo = más rápido)
-			local rainbow = Color3.fromHSV(hue, 1, 1)
-			button:GetChildren()[1].ImageColor3 = rainbow -- Fondo arcoíris
-			button.TextColor3 = rainbow -- Texto arcoíris (opcional)
-		end
-	end)
-
-	-- Efecto de onda al hacer clic (ripple)
-	button.MouseButton1Click:Connect(function()
-		ripple(button, mouse.X, mouse.Y)
-		pcall(callback)
-	end)
-
-	return button
-end
+						button_text = tostring(button_text or "New Button")
+						callback = typeof(callback) == "function" and callback or function()end
 
 						local button = Prefabs:FindFirstChild("Button"):Clone()
-
 						button.Parent = new_tab
 						button.Text = button_text
 						button.Size = UDim2.new(0, gNameLen(button), 0, 20)
 						button.ZIndex = button.ZIndex + (windows * 10)
 						button:GetChildren()[1].ZIndex = button:GetChildren()[1].ZIndex + (windows * 10)
 
+						-- 🌈 Efecto arcoíris dinámico
 						spawn(function()
 							while true do
-								if button and button:GetChildren()[1] then
-									button:GetChildren()[1].ImageColor3 = options.main_color
-								end
+								if not button or not button:GetChildren()[1] then break end
+								local hue = tick() % 3 / 3 -- velocidad del ciclo (más bajo = más rápido)
+								local rainbow = Color3.fromHSV(hue, 1, 1)
+								-- Aplicar color al fondo del botón
+								button:GetChildren()[1].ImageColor3 = rainbow
+								-- Opcional: aplicar color al texto del botón (comentá si querés mantener texto blanco)
+								button.TextColor3 = rainbow
 								RS.Heartbeat:Wait()
 							end
 						end)
 
+						-- Efecto de onda al hacer clic (ripple)
 						button.MouseButton1Click:Connect(function()
 							ripple(button, mouse.X, mouse.Y)
 							pcall(callback)
@@ -1209,8 +1187,7 @@ end
 
 						return button
 					end
-
-					function tab_data:AddSwitch(switch_text, callback) -- [Switch]
+function tab_data:AddSwitch(switch_text, callback) -- [Switch]
     local switch_data = {}
 
     switch_text = tostring(switch_text or "New Switch")
