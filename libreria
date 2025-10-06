@@ -955,69 +955,28 @@ function library:AddWindow(title, options)
 	Window.Size = UDim2.new(0, options.min_size.X, 0, options.min_size.Y)
 	Window.ZIndex = Window.ZIndex + (windows * 10)
 
-	do -- 🌈 Rainbow con paleta RGB personalizada (mantiene texto blanco, aplica a todo el UI)
-do
-    local palette = {
-        Color3.fromRGB(181, 15, 4),   -- rojo
-        Color3.fromRGB(227, 95, 18),  -- naranja
-        Color3.fromRGB(214, 214, 0),  -- amarillo
-        Color3.fromRGB(45, 209, 8),   -- verde
-        Color3.fromRGB(0, 196, 187),  -- turquesa
-        Color3.fromRGB(0, 36, 196),   -- azul
-        Color3.fromRGB(85, 2, 201),   -- violeta
-        Color3.fromRGB(181, 0, 181),  -- rosa
-    }
+	do -- 🌈 Rainbow Bar Effect
+	local Title = Window:FindFirstChild("Title")
+	local Bar = Window:FindFirstChild("Bar")
+	local Base = Bar:FindFirstChild("Base")
+	local Top = Bar:FindFirstChild("Top")
+	local SplitFrame = Window:FindFirstChild("TabSelection"):FindFirstChild("Frame")
+	local Toggle = Bar:FindFirstChild("Toggle")
 
-    local TweenService = game:GetService("TweenService")
-    local RS = game:GetService("RunService")
-    local cycleTime = 6
-    local fadeTime = 0.6
+	spawn(function()
+		while true do
+			local hue = tick() % 5 / 5 -- velocidad del ciclo (ajustá el número 5 para hacerlo más rápido/lento)
+			local rainbow = Color3.fromHSV(hue, 1, 1)
 
-    local function forceTextWhite(root)
-        for _, v in ipairs(root:GetDescendants()) do
-            if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-                pcall(function() v.TextColor3 = Color3.fromRGB(255,255,255) end)
-            end
-        end
-    end
+			Bar.BackgroundColor3 = rainbow
+			Base.BackgroundColor3 = rainbow
+			Base.ImageColor3 = rainbow
+			Top.ImageColor3 = rainbow
+			SplitFrame.BackgroundColor3 = rainbow
 
-    spawn(function()
-        while not Window do RS.Heartbeat:Wait() end
-        forceTextWhite(Window)
-
-        local idx = 1
-        while true do
-            local nextIdx = idx % #palette + 1
-            local colorB = palette[nextIdx]
-
-            for _, obj in ipairs(Window:GetDescendants()) do
-                if obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                    pcall(function()
-                        if obj:IsA("Frame") then
-                            local tween = TweenService:Create(obj, TweenInfo.new(fadeTime), {BackgroundColor3 = colorB})
-                            tween:Play()
-                        elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                            local tween = TweenService:Create(obj, TweenInfo.new(fadeTime), {ImageColor3 = colorB})
-                            tween:Play()
-                        end
-                    end)
-                end
-            end
-
-            -- mantener letras blancas (por si hay nuevos objetos)
-            pcall(forceTextWhite, Window)
-
-            local waitTime = cycleTime / #palette
-            local elapsed = 0
-            while elapsed < waitTime do
-                local dt = RS.Heartbeat:Wait()
-                elapsed += dt
-            end
-            idx = nextIdx
-        end
-    end)
-end
-end)
+			task.wait()
+		end
+	end)
 end
 
 
