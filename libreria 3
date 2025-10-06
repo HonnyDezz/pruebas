@@ -1174,7 +1174,7 @@ end
 								-- Aplicar color al fondo del botón
 								button:GetChildren()[1].ImageColor3 = rainbow
 								-- Opcional: aplicar color al texto del botón (comentá si querés mantener texto blanco)
-								button.TextColor3 = rainbow
+								button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto blanco
 								RS.Heartbeat:Wait()
 							end
 						end)
