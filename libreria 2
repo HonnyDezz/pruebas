@@ -955,32 +955,28 @@ function library:AddWindow(title, options)
 	Window.Size = UDim2.new(0, options.min_size.X, 0, options.min_size.Y)
 	Window.ZIndex = Window.ZIndex + (windows * 10)
 
-	do -- 🌈 Rainbow Effect en TODO (menos texto)
-    spawn(function()
-        while true do
-            local hue = tick() % 3 / 3 -- velocidad del ciclo (ajustá el número 5 para hacerlo más rápido/lento)
-            local rainbow = Color3.fromHSV(hue, 1, 1)
+	do -- 🌈 Rainbow Bar Effect
+	local Title = Window:FindFirstChild("Title")
+	local Bar = Window:FindFirstChild("Bar")
+	local Base = Bar:FindFirstChild("Base")
+	local Top = Bar:FindFirstChild("Top")
+	local SplitFrame = Window:FindFirstChild("TabSelection"):FindFirstChild("Frame")
+	local Toggle = Bar:FindFirstChild("Toggle")
 
-            -- Aplicar a todo excepto textos
-            for _, obj in pairs(Window:GetDescendants()) do
-                if obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                    obj.BackgroundColor3 = rainbow
-                    if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                        obj.ImageColor3 = rainbow
-                    end
-                end
-            end
+	spawn(function()
+		while true do
+			local hue = tick() % 3 / 3 -- velocidad del ciclo (ajustá el número 5 para hacerlo más rápido/lento)
+			local rainbow = Color3.fromHSV(hue, 1, 1)
 
-            -- Evitar que afecte textos
-            for _, obj in pairs(Window:GetDescendants()) do
-                if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-                    obj.TextColor3 = Color3.new(1, 1, 1) -- mantener letras blancas
-                end
-            end
+			Bar.BackgroundColor3 = rainbow
+			Base.BackgroundColor3 = rainbow
+			Base.ImageColor3 = rainbow
+			Top.ImageColor3 = rainbow
+			SplitFrame.BackgroundColor3 = rainbow
 
-            task.wait()
-        end
-    end)
+			task.wait()
+		end
+	end)
 end
 
 
@@ -1188,44 +1184,46 @@ end
 					end
 
 					function tab_data:AddSwitch(switch_text, callback) -- [Switch]
-						local switch_data = {}
+    local switch_data = {}
 
-						switch_text = tostring(switch_text or "New Switch")
-						callback = typeof(callback) == "function" and callback or function()end
+    switch_text = tostring(switch_text or "New Switch")
+    callback = typeof(callback) == "function" and callback or function()end
 
-						local switch = Prefabs:FindFirstChild("Switch"):Clone()
+    local switch = Prefabs:FindFirstChild("Switch"):Clone()
+    switch.Parent = new_tab
+    switch:FindFirstChild("Title").Text = switch_text
 
-						switch.Parent = new_tab
-						switch:FindFirstChild("Title").Text = switch_text
+    switch:FindFirstChild("Title").ZIndex = switch:FindFirstChild("Title").ZIndex + (windows * 10)
+    switch.ZIndex = switch.ZIndex + (windows * 10)
+    switch:GetChildren()[1].ZIndex = switch:GetChildren()[1].ZIndex + (windows * 10)
 
-						switch:FindFirstChild("Title").ZIndex = switch:FindFirstChild("Title").ZIndex + (windows * 10)
-						switch.ZIndex = switch.ZIndex + (windows * 10)
-						switch:GetChildren()[1].ZIndex = switch:GetChildren()[1].ZIndex + (windows * 10)
+    -- 🌈 Rainbow effect (velocidad media)
+    spawn(function()
+        while true do
+            local hue = tick() % 3 / 3 -- velocidad media (ajustar 8 para más lento o más rápido)
+            local rainbow = Color3.fromHSV(hue, 1, 1)
+            if switch and switch:GetChildren()[1] then
+                switch:GetChildren()[1].ImageColor3 = rainbow -- cambia el color del cuadro del switch
+            end
+            RS.Heartbeat:Wait()
+        end
+    end)
 
-						spawn(function()
-							while true do
-								if switch and switch:GetChildren()[1] then
-									switch:GetChildren()[1].ImageColor3 = options.main_color
-								end
-								RS.Heartbeat:Wait()
-							end
-						end)
+    local toggled = false
+    switch.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        switch.Text = toggled and utf8.char(10003) or "" -- ✔ o vacío
+        pcall(callback, toggled)
+    end)
 
-						local toggled = false
-						switch.MouseButton1Click:Connect(function()
-							toggled = not toggled
-							switch.Text = toggled and utf8.char(10003) or ""
-							pcall(callback, toggled)
-						end)
+    function switch_data:Set(bool)
+        toggled = (typeof(bool) == "boolean") and bool or false
+        switch.Text = toggled and utf8.char(10003) or ""
+        pcall(callback, toggled)
+    end
 
-						function switch_data:Set(bool)
-							toggled = (typeof(bool) == "boolean") and bool or false
-							switch.Text = toggled and utf8.char(10003) or ""
-							pcall(callback,toggled)
-						end
-
-						return switch_data, switch
-					end
+    return switch_data, switch
+end
 
 					function tab_data:AddTextBox(textbox_text, callback, textbox_options)
 						textbox_text = tostring(textbox_text or "New TextBox")
